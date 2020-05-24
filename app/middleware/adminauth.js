@@ -7,6 +7,8 @@ module.exports = options => {
 
         ctx.state.csrf = ctx.csrf; // 全局变量（用于解决post提交数据时的安全性问题）
         
+        ctx.state.prevPage = ctx.request.headers['referer']; // 全局变量（保存上一页的地址）
+
         let pathname = url.parse(ctx.request.url).pathname;// 过滤get传参的参数
         
         if (ctx.session.userinfo) {
