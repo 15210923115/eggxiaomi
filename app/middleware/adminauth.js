@@ -14,7 +14,15 @@ module.exports = options => {
         if (ctx.session.userinfo) {
             // 登录了，直接next()往下执行后面的流程
             ctx.state.userinfo = ctx.session.userinfo;
-            await next();
+            
+            let hasAuth = await ctx.service.admin.checkAuth();
+
+            if (hasAuth) {
+                await next();
+            } else {
+                ctx.body = '您没有权限访问当前地址';
+            }
+            
         } else {
             // 没有登录，跳转到登录页面
             // 但是需要排除不需要做权限判断的页面，否则无法跳转到登录页面去登录
