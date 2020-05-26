@@ -18,6 +18,9 @@ module.exports = options => {
             let hasAuth = await ctx.service.admin.checkAuth();
 
             if (hasAuth) {
+                // 获取权限列表
+                ctx.state.asideList = await ctx.service.admin.getAuthList(ctx.session.userinfo.role_id);
+
                 await next();
             } else {
                 ctx.body = '您没有权限访问当前地址';

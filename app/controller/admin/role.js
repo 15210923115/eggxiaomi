@@ -42,49 +42,11 @@ class RoleController extends BaseController {
         await this.ctx.render('admin/role/delete');
     }
     async auth() {
-        /**
-         * 1.获取全部权限
-         * 2.查询当前角色拥有的权限（查询当前角色的权限id）把查找到的数据放在数组中
-         * 3.循环遍历所有的权限数据  判断当前权限是否在角色权限的数组中  如果在角色权限的数组中：选中   如果不在角色权限的数组中：不选中
-         */
 
         let role_id = this.ctx.request.query.id;
-        // 1.获取全部权限
-        let result = await this.ctx.model.Access.aggregate([ 
-            {
-                $lookup: {
-                    from: 'access', // 自关联（让自己关联自己，相当于把这个access当成两个表使用）
-                    localField: '_id',
-                    foreignField: 'module_id', 
-                    as: 'items'
-                }
-            },
-            {
-                $match: {
-                    "module_id": '0'
-                }
-            }
-        ]);
-        // 2.查询当前角色拥有的权限（查询当前角色的权限id）把查找到的数据放在数组中
-        let accessResult = await this.ctx.model.RoleAccess.find({"role_id": role_id});
-        let roleAccessArray = [];
-        accessResult.forEach(value => {
-            roleAccessArray.push(value.access_id.toString());
-        }); 
-        console.log(roleAccessArray);
-        // 3.循环遍历所有的权限数据  判断当前权限是否在角色权限的数组中  如果在角色权限的数组中：选中   如果不在角色权限的数组中：不选中
-        for (let i = 0; i<result.length; i++) {
-            if (roleAccessArray.includes(result[i]._id.toString())) {
-                result[i].checked = true;
-            }
 
-            for (let j = 0; j<result[i].items.length; j++) {
-                if (roleAccessArray.includes(result[i].items[j]._id.toString())) {
-                    result[i].items[j].checked = true;
-                }
-            }
-        }
-
+        let result = await this.service.admin.getAuthList(role_id);
+        
         await this.ctx.render('admin/role/auth', {
             role_id,
             list: result
